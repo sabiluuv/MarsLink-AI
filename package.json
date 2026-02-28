@@ -1,0 +1,10 @@
+{
+  "name": "marslink-ai",
+  "version": "1.0.0",
+  "description": "MARSLINK AI — Mars-Earth Intelligent Communication Relay",
+  "scripts": {
+    "dev": "netlify dev",
+    "start": "netlify dev"
+  },
+  "private": true
+}

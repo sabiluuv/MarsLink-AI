@@ -1,0 +1,2744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MARS LINK AI — Intelligent Communication Relay</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔴</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap');
+
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --bg-card: #1a2235;
+            --bg-card-hover: #1f2a40;
+            --accent-mars: #e8553d;
+            --accent-mars-glow: rgba(232, 85, 61, 0.3);
+            --accent-blue: #3b82f6;
+            --accent-blue-glow: rgba(59, 130, 246, 0.3);
+            --accent-green: #10b981;
+            --accent-purple: #8b5cf6;
+            --accent-yellow: #f59e0b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: rgba(255, 255, 255, 0.06);
+            --border-active: rgba(232, 85, 61, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ===== STARFIELD BACKGROUND ===== */
+        .starfield {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: var(--min-opacity); }
+            50% { opacity: var(--max-opacity); }
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 14, 26, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 2rem;
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-mars), #ff7b5f);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 0 20px var(--accent-mars-glow);
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+        }
+
+        .logo-text span {
+            color: var(--accent-mars);
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+        }
+
+        .delay-indicator {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-yellow);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ===== MAIN LAYOUT ===== */
+        .main-container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+            display: grid;
+            grid-template-columns: 320px 1fr 320px;
+            gap: 1.5rem;
+            height: calc(100vh - 64px);
+        }
+
+        /* ===== LEFT PANEL ===== */
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .left-panel::-webkit-scrollbar { width: 4px; }
+        .left-panel::-webkit-scrollbar-track { background: transparent; }
+        .left-panel::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
+
+        .panel-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .panel-card:hover {
+            border-color: var(--border-active);
+            background: var(--bg-card-hover);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .card-icon.mars { background: rgba(232, 85, 61, 0.15); }
+        .card-icon.blue { background: rgba(59, 130, 246, 0.15); }
+        .card-icon.green { background: rgba(16, 185, 129, 0.15); }
+        .card-icon.purple { background: rgba(139, 92, 246, 0.15); }
+        .card-icon.yellow { background: rgba(245, 158, 11, 0.15); }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .card-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Distance Visualizer */
+        .distance-visual {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+        }
+
+        .planet {
+            text-align: center;
+        }
+
+        .planet-emoji {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .planet-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .signal-line {
+            flex: 1;
+            height: 2px;
+            margin: 0 12px;
+            position: relative;
+            background: linear-gradient(90deg, var(--accent-blue), transparent 20%, transparent 80%, var(--accent-mars));
+            margin-bottom: 16px;
+        }
+
+        .signal-pulse {
+            position: absolute;
+            top: -4px;
+            width: 10px;
+            height: 10px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-blue-glow);
+            animation: signal-travel 3s ease-in-out infinite;
+        }
+
+        @keyframes signal-travel {
+            0% { left: 0; opacity: 1; }
+            100% { left: calc(100% - 10px); opacity: 0.3; background: var(--accent-mars); box-shadow: 0 0 10px var(--accent-mars-glow); }
+        }
+
+        .delay-display {
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        .delay-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-mars));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .delay-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Slider */
+        .slider-container {
+            margin-top: 1rem;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-mars));
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+        }
+
+        /* Stats */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--accent-blue);
+        }
+
+        .stat-value.mars { color: var(--accent-mars); }
+        .stat-value.green { color: var(--accent-green); }
+        .stat-value.purple { color: var(--accent-purple); }
+
+        .stat-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Timing Window */
+        .timing-slots {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .timing-slot {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .timing-slot.optimal {
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .timing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .timing-dot.green { background: var(--accent-green); }
+        .timing-dot.yellow { background: var(--accent-yellow); }
+        .timing-dot.red { background: var(--accent-mars); }
+
+        .timing-text { flex: 1; color: var(--text-secondary); }
+        .timing-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+            font-size: 0.75rem;
+        }
+
+        /* ===== CENTER PANEL — CHAT ===== */
+        .chat-panel {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ai-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent-mars), var(--accent-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 0 15px var(--accent-mars-glow);
+        }
+
+        .chat-header-info h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .chat-header-info p {
+            font-size: 0.7rem;
+            color: var(--accent-green);
+        }
+
+        .chat-mode-tabs {
+            display: flex;
+            gap: 4px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 3px;
+            border-radius: 10px;
+        }
+
+        .mode-tab {
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .mode-tab.active {
+            background: var(--accent-mars);
+            color: white;
+        }
+
+        .mode-tab:hover:not(.active) {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .chat-messages::-webkit-scrollbar { width: 4px; }
+        .chat-messages::-webkit-scrollbar-track { background: transparent; }
+        .chat-messages::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            max-width: 85%;
+            animation: messageIn 0.3s ease;
+        }
+
+        @keyframes messageIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.ai { align-self: flex-start; }
+        .message.user { align-self: flex-end; flex-direction: row-reverse; }
+
+        .msg-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .msg-avatar.ai-av {
+            background: linear-gradient(135deg, var(--accent-mars), var(--accent-purple));
+        }
+
+        .msg-avatar.user-av {
+            background: linear-gradient(135deg, var(--accent-blue), #60a5fa);
+        }
+
+        .msg-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .msg-bubble {
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .message.ai .msg-bubble {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-color);
+            border-top-left-radius: 4px;
+        }
+
+        .message.user .msg-bubble {
+            background: linear-gradient(135deg, var(--accent-mars), #d44a33);
+            border-top-right-radius: 4px;
+        }
+
+        .msg-meta {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .message.user .msg-meta {
+            justify-content: flex-end;
+        }
+
+        .compress-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            font-weight: 500;
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            border-top-left-radius: 4px;
+            margin-left: 38px;
+        }
+
+        .typing-indicator.show { display: flex; }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .typing-dots span {
+            width: 6px;
+            height: 6px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            animation: typing-bounce 1.4s ease-in-out infinite;
+        }
+
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing-bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
+        }
+
+        /* Chat Input */
+        .chat-input-area {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 8px 12px;
+            transition: border-color 0.2s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--accent-mars);
+            box-shadow: 0 0 0 3px var(--accent-mars-glow);
+        }
+
+        .chat-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            resize: none;
+            outline: none;
+            max-height: 100px;
+            line-height: 1.4;
+        }
+
+        .chat-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .send-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, var(--accent-mars), #d44a33);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+            font-size: 16px;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--accent-mars-glow);
+        }
+
+        .input-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .input-info-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .info-chip {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: default;
+        }
+
+        /* ===== RIGHT PANEL ===== */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            overflow-y: auto;
+            padding-left: 4px;
+        }
+
+        .right-panel::-webkit-scrollbar { width: 4px; }
+        .right-panel::-webkit-scrollbar-track { background: transparent; }
+        .right-panel::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
+
+        /* Compression Preview */
+        .compress-preview {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+
+        .compress-original {
+            color: var(--text-muted);
+            padding-bottom: 8px;
+            border-bottom: 1px dashed var(--border-color);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .compress-result {
+            color: var(--accent-green);
+            line-height: 1.4;
+        }
+
+        .compress-stats {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .compress-stat {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            padding: 3px 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 4px;
+            color: var(--accent-green);
+        }
+
+        /* Queue */
+        .queue-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .queue-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+
+        .queue-priority {
+            width: 6px;
+            height: 28px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .queue-priority.high { background: var(--accent-mars); }
+        .queue-priority.medium { background: var(--accent-yellow); }
+        .queue-priority.low { background: var(--accent-blue); }
+
+        .queue-info { flex: 1; }
+        .queue-title {
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+        .queue-desc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        .queue-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent-mars);
+        }
+
+        .action-btn-icon {
+            font-size: 16px;
+        }
+
+        /* System Log */
+        .system-log {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 0.7rem;
+            padding: 4px 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .log-time {
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .log-msg { color: var(--text-secondary); line-height: 1.3; }
+        .log-msg.success { color: var(--accent-green); }
+        .log-msg.warn { color: var(--accent-yellow); }
+        .log-msg.info { color: var(--accent-blue); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            .left-panel, .right-panel {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                overflow: visible;
+            }
+            .chat-panel {
+                height: 70vh;
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container { padding: 1rem; }
+            .left-panel, .right-panel {
+                grid-template-columns: 1fr;
+            }
+            .header-inner { padding: 0; }
+            .header-status { display: none; }
+        }
+
+        /* ===== NOTIFICATION TOAST ===== */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--accent-green);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: toastIn 0.3s ease, toastOut 0.3s ease 3s forwards;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 320px;
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes toastOut {
+            from { opacity: 1; }
+            to { opacity: 0; transform: translateX(30px); }
+        }
+
+        /* ===== API BADGE ===== */
+        .api-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .api-badge .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .api-badge .dot.connected { background: var(--accent-green); }
+        .api-badge .dot.disconnected { background: var(--accent-mars); }
+        .api-badge .dot.checking { background: var(--accent-yellow); animation: pulse-dot 1s ease-in-out infinite; }
+
+        /* ===== SIMULATION LAUNCH BUTTON ===== */
+        .sim-launch-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--accent-mars);
+            background: linear-gradient(135deg, rgba(232,85,61,0.15), rgba(139,92,246,0.15));
+            color: var(--accent-mars);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+        }
+        .sim-launch-btn:hover {
+            background: linear-gradient(135deg, rgba(232,85,61,0.3), rgba(139,92,246,0.3));
+            box-shadow: 0 0 20px var(--accent-mars-glow);
+            transform: scale(1.05);
+        }
+
+        /* ===== SIMULATION OVERLAY ===== */
+        .sim-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(5, 8, 18, 0.92);
+            backdrop-filter: blur(20px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: simFadeIn 0.4s ease;
+        }
+        .sim-overlay.active { display: flex; }
+        @keyframes simFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .sim-modal {
+            width: 95%;
+            max-width: 1100px;
+            max-height: 92vh;
+            overflow-y: auto;
+            background: linear-gradient(170deg, #0f1628 0%, #111827 50%, #0f1320 100%);
+            border: 1px solid rgba(232, 85, 61, 0.25);
+            border-radius: 24px;
+            padding: 2.5rem;
+            position: relative;
+            box-shadow: 0 0 80px rgba(232, 85, 61, 0.08), 0 0 200px rgba(59, 130, 246, 0.05);
+            animation: simSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .sim-modal::-webkit-scrollbar { width: 5px; }
+        .sim-modal::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
+        @keyframes simSlideUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .sim-close {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.5rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: rgba(255,255,255,0.05);
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sim-close:hover {
+            background: rgba(232, 85, 61, 0.2);
+            border-color: var(--accent-mars);
+            color: var(--accent-mars);
+        }
+
+        .sim-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sim-title span { color: var(--accent-mars); }
+        .sim-subtitle {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Simulation Controls */
+        .sim-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .sim-control-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+        .sim-control-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.4rem;
+        }
+        .sim-control-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+        .sim-slider-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sim-slider-row input[type="range"] { flex: 1; }
+        .sim-slider-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1rem;
+            min-width: 90px;
+            text-align: right;
+            color: var(--accent-blue);
+        }
+        .sim-slider-val.mars-col { color: var(--accent-mars); }
+
+        /* Message size presets */
+        .sim-presets {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 0.8rem;
+        }
+        .sim-preset-btn {
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: rgba(255,255,255,0.04);
+            color: var(--text-secondary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .sim-preset-btn:hover, .sim-preset-btn.active {
+            border-color: var(--accent-mars);
+            background: rgba(232,85,61,0.12);
+            color: var(--text-primary);
+        }
+
+        /* Planet Visualization */
+        .sim-visual {
+            position: relative;
+            background: rgba(0,0,0,0.35);
+            border-radius: 20px;
+            padding: 2rem 2.5rem;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .sim-visual-bg {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 10% 50%, rgba(59,130,246,0.06) 0%, transparent 50%),
+                        radial-gradient(ellipse at 90% 50%, rgba(232,85,61,0.06) 0%, transparent 50%);
+        }
+        .sim-planets-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+            padding: 1rem 0;
+        }
+        .sim-planet {
+            text-align: center;
+            min-width: 80px;
+        }
+        .sim-planet-icon {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 6px;
+            filter: drop-shadow(0 0 12px rgba(255,255,255,0.15));
+        }
+        .sim-planet-name {
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+        .sim-planet-name.earth { color: var(--accent-blue); }
+        .sim-planet-name.mars { color: var(--accent-mars); }
+
+        .sim-signal-track {
+            flex: 1;
+            height: 4px;
+            margin: 0 2rem;
+            background: linear-gradient(90deg, var(--accent-blue), rgba(255,255,255,0.08) 30%, rgba(255,255,255,0.08) 70%, var(--accent-mars));
+            border-radius: 2px;
+            position: relative;
+            margin-bottom: 10px;
+        }
+        .sim-packet {
+            position: absolute;
+            top: -10px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            opacity: 0;
+            transition: none;
+        }
+        .sim-packet.raw {
+            background: rgba(245, 158, 11, 0.3);
+            border: 2px solid var(--accent-yellow);
+            box-shadow: 0 0 12px rgba(245,158,11,0.4);
+        }
+        .sim-packet.ai {
+            background: rgba(16, 185, 129, 0.3);
+            border: 2px solid var(--accent-green);
+            box-shadow: 0 0 12px rgba(16,185,129,0.4);
+        }
+        .sim-packet.animating {
+            opacity: 1;
+            transition: left linear;
+        }
+
+        .sim-distance-label {
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            position: relative;
+            z-index: 1;
+        }
+        .sim-distance-label strong {
+            color: var(--text-secondary);
+        }
+
+        /* Run Simulation Button */
+        .sim-run-btn {
+            display: block;
+            margin: 0 auto 2rem;
+            padding: 14px 48px;
+            border-radius: 14px;
+            border: none;
+            background: linear-gradient(135deg, var(--accent-mars), #d44a33, var(--accent-purple));
+            background-size: 200% 200%;
+            color: white;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 25px rgba(232,85,61,0.3);
+            animation: simBtnGlow 3s ease-in-out infinite;
+        }
+        .sim-run-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 40px rgba(232,85,61,0.45);
+        }
+        .sim-run-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        @keyframes simBtnGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Results Section */
+        .sim-results {
+            display: none;
+            animation: simResultsIn 0.6s ease;
+        }
+        .sim-results.show { display: block; }
+        @keyframes simResultsIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .sim-results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .sim-result-card {
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .sim-result-card.without {
+            background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(232,85,61,0.05));
+            border: 1px solid rgba(245,158,11,0.2);
+        }
+        .sim-result-card.with-ai {
+            background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(59,130,246,0.05));
+            border: 1px solid rgba(16,185,129,0.25);
+        }
+        .sim-result-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        .sim-result-card.without .sim-result-badge {
+            background: rgba(245,158,11,0.15);
+            color: var(--accent-yellow);
+        }
+        .sim-result-card.with-ai .sim-result-badge {
+            background: rgba(16,185,129,0.15);
+            color: var(--accent-green);
+        }
+
+        .sim-result-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .sim-result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .sim-result-row:last-child { border-bottom: none; }
+        .sim-rr-label {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sim-rr-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .sim-rr-value.yellow { color: var(--accent-yellow); }
+        .sim-rr-value.green { color: var(--accent-green); }
+        .sim-rr-value.blue { color: var(--accent-blue); }
+        .sim-rr-value.mars { color: var(--accent-mars); }
+
+        /* AI Optimization Steps */
+        .sim-ai-steps {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .sim-ai-steps-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sim-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            opacity: 0;
+            transform: translateX(-15px);
+            transition: all 0.4s ease;
+        }
+        .sim-step.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .sim-step:last-child { border-bottom: none; }
+        .sim-step-num {
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent-mars), var(--accent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+        .sim-step-content {
+            flex: 1;
+        }
+        .sim-step-title {
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 3px;
+        }
+        .sim-step-desc {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        .sim-step-saving {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-green);
+            margin-top: 4px;
+        }
+
+        /* Savings Summary Bar */
+        .sim-savings {
+            background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(59,130,246,0.08));
+            border: 1px solid rgba(16,185,129,0.25);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            text-align: center;
+        }
+        .sim-saving-item {}
+        .sim-saving-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        .sim-saving-value.green { color: var(--accent-green); }
+        .sim-saving-value.blue { color: var(--accent-blue); }
+        .sim-saving-value.purple { color: var(--accent-purple); }
+        .sim-saving-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .sim-saving-divider {
+            width: 1px;
+            height: 50px;
+            background: var(--border-color);
+        }
+
+        /* Progress bar */
+        .sim-progress-wrap {
+            margin: 1.5rem 0;
+        }
+        .sim-progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+        .sim-progress-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        .sim-progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        .sim-progress-fill.raw {
+            background: linear-gradient(90deg, var(--accent-yellow), var(--accent-mars));
+        }
+        .sim-progress-fill.optimized {
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+        }
+
+        @media (max-width: 768px) {
+            .sim-modal { padding: 1.5rem; }
+            .sim-controls { grid-template-columns: 1fr; }
+            .sim-results-grid { grid-template-columns: 1fr; }
+            .sim-savings { flex-direction: column; gap: 1rem; }
+            .sim-saving-divider { width: 50px; height: 1px; }
+            .sim-planets-row { padding: 0.5rem 0; }
+            .sim-planet-icon { font-size: 2.2rem; }
+            .sim-signal-track { margin: 0 1rem; }
+            .sim-launch-btn span { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Starfield -->
+    <div class="starfield" id="starfield"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <div class="logo-icon">🛰️</div>
+                <div class="logo-text">MARS<span>LINK</span> AI</div>
+            </div>
+            <div class="header-status">
+                <div class="status-badge">
+                    <div class="status-dot"></div>
+                    AI Relay Active
+                </div>
+                <div class="delay-indicator">
+                    ⏱️ Current Delay: <strong id="headerDelay">14m 32s</strong>
+                </div>
+                <button class="sim-launch-btn" id="openSimBtn" onclick="openSimulation()">
+                    🚀 Simulation
+                </button>
+                <div class="api-badge" id="apiBadge">
+                    <span class="dot checking" id="apiDot"></span>
+                    <span id="apiStatusText">Checking AI...</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Main -->
+    <main class="main-container">
+
+        <!-- LEFT PANEL -->
+        <aside class="left-panel">
+
+            <!-- Signal Delay Card -->
+            <div class="panel-card">
+                <div class="card-header">
+                    <div class="card-icon mars">📡</div>
+                    <div>
+                        <div class="card-title">Signal Delay Monitor</div>
+                        <div class="card-subtitle">Mars ↔ Earth real-time</div>
+                    </div>
+                </div>
+                <div class="distance-visual">
+                    <div class="planet">
+                        <span class="planet-emoji">🌍</span>
+                        <span class="planet-label">EARTH</span>
+                    </div>
+                    <div class="signal-line">
+                        <div class="signal-pulse"></div>
+                    </div>
+                    <div class="planet">
+                        <span class="planet-emoji">🔴</span>
+                        <span class="planet-label">MARS</span>
+                    </div>
+                </div>
+                <div class="delay-display">
+                    <div class="delay-time" id="delayTime">14:32</div>
+                    <div class="delay-label">One-way light delay (min:sec)</div>
+                </div>
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Closest (56M km)</span>
+                        <span>Farthest (401M km)</span>
+                    </div>
+                    <input type="range" id="distanceSlider" min="56" max="401" value="225" step="1">
+                    <div style="text-align: center; margin-top: 6px;">
+                        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-secondary);" id="distanceValue">225M km</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Card -->
+            <div class="panel-card">
+                <div class="card-header">
+                    <div class="card-icon blue">📊</div>
+                    <div>
+                        <div class="card-title">Session Statistics</div>
+                        <div class="card-subtitle">Current relay performance</div>
+                    </div>
+                </div>
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="statMessages">12</div>
+                        <div class="stat-label">Messages</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value mars" id="statCompression">68%</div>
+                        <div class="stat-label">Compressed</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value green" id="statResolved">5</div>
+                        <div class="stat-label">AI Resolved</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value purple" id="statSaved">47 min</div>
+                        <div class="stat-label">Time Saved</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optimal Timing -->
+            <div class="panel-card">
+                <div class="card-header">
+                    <div class="card-icon green">🕐</div>
+                    <div>
+                        <div class="card-title">Transmission Windows</div>
+                        <div class="card-subtitle">Optimal send times</div>
+                    </div>
+                </div>
+                <div class="timing-slots">
+                    <div class="timing-slot optimal">
+                        <div class="timing-dot green"></div>
+                        <div class="timing-text">Best window</div>
+                        <div class="timing-value" style="color: var(--accent-green);">NOW</div>
+                    </div>
+                    <div class="timing-slot">
+                        <div class="timing-dot green"></div>
+                        <div class="timing-text">Low traffic</div>
+                        <div class="timing-value">+2h 15m</div>
+                    </div>
+                    <div class="timing-slot">
+                        <div class="timing-dot yellow"></div>
+                        <div class="timing-text">Moderate</div>
+                        <div class="timing-value">+5h 40m</div>
+                    </div>
+                    <div class="timing-slot">
+                        <div class="timing-dot red"></div>
+                        <div class="timing-text">Solar interference</div>
+                        <div class="timing-value">+8h 10m</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CENTER — CHAT -->
+        <section class="chat-panel">
+            <div class="chat-header">
+                <div class="chat-header-left">
+                    <div class="ai-avatar">🤖</div>
+                    <div class="chat-header-info">
+                        <h3>MARSLINK AI Assistant</h3>
+                        <p>● Online — Autonomous Mode</p>
+                    </div>
+                </div>
+                <div class="chat-mode-tabs">
+                    <button class="mode-tab active" data-mode="assistant">🤖 Assistant</button>
+                    <button class="mode-tab" data-mode="relay">📡 Relay</button>
+                    <button class="mode-tab" data-mode="compress">📦 Compress</button>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <!-- Initial welcome -->
+            </div>
+
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-dots">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <div class="input-wrapper">
+                    <textarea class="chat-input" id="chatInput" rows="1" placeholder="Ask AI or send a message to Earth..."></textarea>
+                    <button class="send-btn" id="sendBtn" title="Send">➤</button>
+                </div>
+                <div class="input-info">
+                    <div class="input-info-actions">
+                        <div class="info-chip">📦 Auto-compress: ON</div>
+                        <div class="info-chip">⏱️ Smart-timing: ON</div>
+                    </div>
+                    <span id="charCount">0 / 2000</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT PANEL -->
+        <aside class="right-panel">
+
+            <!-- Compression Card -->
+            <div class="panel-card">
+                <div class="card-header">
+                    <div class="card-icon purple">📦</div>
+                    <div>
+                        <div class="card-title">Message Compression</div>
+                        <div class="card-subtitle">Last compressed message</div>
+                    </div>
+                </div>
+                <div class="compress-preview" id="compressPreview">
+                    <div class="compress-original" id="compressOriginal">
+                        "We have completed the geological survey of sector 7B. Found traces of subsurface water ice at 2.3 meters depth. Mineral composition analysis shows high iron oxide content. Requesting guidance on sample priority."
+                    </div>
+                    <div class="compress-result" id="compressResult">
+                        → "Sector 7B survey done. Water ice @ 2.3m depth. High Fe₂O₃. Need sample priority guidance."
+                    </div>
+                    <div class="compress-stats">
+                        <span class="compress-stat">-62% size</span>
+                        <span class="compress-stat">~3.2s saved</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message Queue -->
+            <div class="panel-card">
+                <div class="card-header">
+                    <div class="card-icon yellow">📋</div>
+                    <div>
+                        <div class="card-title">Transmission Queue</div>
+                        <div class="card-subtitle">Pending messages to Earth</div>
+                    </div>
+                </div>
+                <div class="queue-list" id="queueList">
+                    <div class="queue-item">
+                        <div class="queue-priority high"></div>
+                        <div class="queue-info">
+                            <div class="queue-title">Medical telemetry</div>
+                            <div class="queue-desc">Crew vitals — priority</div>
+                        </div>
+                        <div class="queue-time">ETA 14m</div>
+                    </div>
+                    <div class="queue-item">
+                        <div class="queue-priority medium"></div>
+                        <div class="queue-info">
+                            <div class="queue-title">Geological data batch</div>
+                            <div class="queue-desc">Compressed 4 reports</div>
+                        </div>
+                        <div class="queue-time">ETA 16m</div>
+                    </div>
+                    <div class="queue-item">
+                        <div class="queue-priority low"></div>
+                        <div class="queue-info">
+                            <div class="queue-title">Crew personal msgs</div>
+                            <div class="queue-desc">3 messages batched</div>
+                        </div>
+                        <div class="queue-time">ETA 22m</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="panel-card">
+                <div class="card-header">
+                    <div class="card-icon mars">⚡</div>
+                    <div>
+                        <div class="card-title">Quick Actions</div>
+                        <div class="card-subtitle">Autonomous AI tools</div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="handleQuickAction('diagnose')">
+                        <span class="action-btn-icon">🔧</span>
+                        Run System Diagnostics
+                    </button>
+                    <button class="action-btn" onclick="handleQuickAction('batch')">
+                        <span class="action-btn-icon">📦</span>
+                        Batch & Compress Queue
+                    </button>
+                    <button class="action-btn" onclick="handleQuickAction('status')">
+                        <span class="action-btn-icon">📊</span>
+                        Generate Status Report
+                    </button>
+                    <button class="action-btn" onclick="handleQuickAction('emergency')">
+                        <span class="action-btn-icon">🚨</span>
+                        Emergency Burst Mode
+                    </button>
+                </div>
+            </div>
+
+            <!-- System Log -->
+            <div class="panel-card">
+                <div class="card-header">
+                    <div class="card-icon blue">📜</div>
+                    <div>
+                        <div class="card-title">System Log</div>
+                        <div class="card-subtitle">Recent AI actions</div>
+                    </div>
+                </div>
+                <div class="system-log" id="systemLog">
+                    <div class="log-entry">
+                        <span class="log-time">14:32:01</span>
+                        <span class="log-msg success">✓ Relay link established</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">14:31:45</span>
+                        <span class="log-msg info">⊕ 3 messages batched</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">14:31:20</span>
+                        <span class="log-msg warn">△ Solar interference detected</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">14:30:58</span>
+                        <span class="log-msg info">⊕ Compression: 68% reduction</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">14:30:12</span>
+                        <span class="log-msg success">✓ AI autonomous resolution #5</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- ===== SIMULATION OVERLAY ===== -->
+    <div class="sim-overlay" id="simOverlay">
+        <div class="sim-modal">
+            <button class="sim-close" onclick="closeSimulation()">✕</button>
+
+            <div class="sim-title">🚀 Interactive <span>Transmission Simulator</span></div>
+            <div class="sim-subtitle">Model real Earth–Mars communication: see delay, delivery time, and how AI optimizes every byte</div>
+
+            <!-- Controls -->
+            <div class="sim-controls">
+                <div class="sim-control-card">
+                    <div class="sim-control-label">🌌 Distance Earth – Mars</div>
+                    <div class="sim-control-desc">Drag to set current orbital distance (56 – 401 million km)</div>
+                    <div class="sim-slider-row">
+                        <input type="range" id="simDistance" min="56" max="401" value="225" step="1">
+                        <div class="sim-slider-val mars-col" id="simDistVal">225M km</div>
+                    </div>
+                    <div class="sim-presets">
+                        <button class="sim-preset-btn" onclick="setSimDistance(56)">Closest (56M)</button>
+                        <button class="sim-preset-btn active" onclick="setSimDistance(225)">Average (225M)</button>
+                        <button class="sim-preset-btn" onclick="setSimDistance(401)">Farthest (401M)</button>
+                    </div>
+                </div>
+
+                <div class="sim-control-card">
+                    <div class="sim-control-label">📦 Message Size</div>
+                    <div class="sim-control-desc">Select the type & size of data to transmit</div>
+                    <div class="sim-slider-row">
+                        <input type="range" id="simSize" min="1" max="5000" value="50" step="1">
+                        <div class="sim-slider-val" id="simSizeVal">50 KB</div>
+                    </div>
+                    <div class="sim-presets">
+                        <button class="sim-preset-btn" onclick="setSimSize(2)">📝 Short text (2 KB)</button>
+                        <button class="sim-preset-btn active" onclick="setSimSize(50)">📄 Report (50 KB)</button>
+                        <button class="sim-preset-btn" onclick="setSimSize(500)">🖼️ Image (500 KB)</button>
+                        <button class="sim-preset-btn" onclick="setSimSize(2000)">📊 Science data (2 MB)</button>
+                        <button class="sim-preset-btn" onclick="setSimSize(5000)">🎥 Video clip (5 MB)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Planet Visualization -->
+            <div class="sim-visual">
+                <div class="sim-visual-bg"></div>
+                <div class="sim-planets-row">
+                    <div class="sim-planet">
+                        <span class="sim-planet-icon">🌍</span>
+                        <span class="sim-planet-name earth">EARTH</span>
+                    </div>
+                    <div class="sim-signal-track" id="simTrack">
+                        <div class="sim-packet raw" id="simPacketRaw">📦</div>
+                        <div class="sim-packet ai" id="simPacketAI">⚡</div>
+                    </div>
+                    <div class="sim-planet">
+                        <span class="sim-planet-icon">🔴</span>
+                        <span class="sim-planet-name mars">MARS</span>
+                    </div>
+                </div>
+                <div class="sim-distance-label" id="simVisualDist">Distance: <strong>225 million km</strong> · Light-speed: 299,792 km/s</div>
+            </div>
+
+            <!-- Run Button -->
+            <button class="sim-run-btn" id="simRunBtn" onclick="runSimulation()">▶ &nbsp;RUN SIMULATION</button>
+
+            <!-- Results -->
+            <div class="sim-results" id="simResults">
+
+                <!-- Progress bars -->
+                <div class="sim-progress-wrap">
+                    <div class="sim-progress-label">
+                        <span>⏳ Without AI (raw transmission)</span>
+                        <span id="simRawProgress">0%</span>
+                    </div>
+                    <div class="sim-progress-bar">
+                        <div class="sim-progress-fill raw" id="simRawBar"></div>
+                    </div>
+                </div>
+                <div class="sim-progress-wrap">
+                    <div class="sim-progress-label">
+                        <span>🤖 With AI Optimization</span>
+                        <span id="simAIProgress">0%</span>
+                    </div>
+                    <div class="sim-progress-bar">
+                        <div class="sim-progress-fill optimized" id="simAIBar"></div>
+                    </div>
+                </div>
+
+                <!-- Comparison Cards -->
+                <div class="sim-results-grid">
+                    <div class="sim-result-card without">
+                        <div class="sim-result-badge">⚠️ Without AI</div>
+                        <div class="sim-result-rows">
+                            <div class="sim-result-row">
+                                <span class="sim-rr-label">📡 Signal delay</span>
+                                <span class="sim-rr-value yellow" id="resRawDelay">—</span>
+                            </div>
+                            <div class="sim-result-row">
+                                <span class="sim-rr-label">📦 Data size</span>
+                                <span class="sim-rr-value yellow" id="resRawSize">—</span>
+                            </div>
+                            <div class="sim-result-row">
+                                <span class="sim-rr-label">📶 Transmission time</span>
+                                <span class="sim-rr-value yellow" id="resRawTx">—</span>
+                            </div>
+                            <div class="sim-result-row">
+                                <span class="sim-rr-label">⏱️ Total delivery</span>
+                                <span class="sim-rr-value mars" id="resRawTotal">—</span>
+                            </div>
+                            <div class="sim-result-row">
+                                <span class="sim-rr-label">🔄 Round-trip</span>
+                                <span class="sim-rr-value mars" id="resRawRound">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sim-result-card with-ai">
+                        <div class="sim-result-badge">🤖 With MARSLINK AI</div>
+                        <div class="sim-result-rows">
+                            <div class="sim-result-row">
+                                <span class="sim-rr-label">📡 Signal delay</span>
+                                <span class="sim-rr-value blue" id="resAIDelay">—</span>
+                            </div>
+                            <div class="sim-result-row">
+                                <span class="sim-rr-label">📦 Compressed size</span>
+                                <span class="sim-rr-value green" id="resAISize">—</span>
+                            </div>
+                            <div class="sim-result-row">
+                                <span class="sim-rr-label">📶 Transmission time</span>
+                                <span class="sim-rr-value green" id="resAITx">—</span>
+                            </div>
+                            <div class="sim-result-row">
+                                <span class="sim-rr-label">⏱️ Total delivery</span>
+                                <span class="sim-rr-value green" id="resAITotal">—</span>
+                            </div>
+                            <div class="sim-result-row">
+                                <span class="sim-rr-label">🧠 AI local resolve</span>
+                                <span class="sim-rr-value green" id="resAIResolve">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Optimization Steps -->
+                <div class="sim-ai-steps">
+                    <div class="sim-ai-steps-title">🧠 How AI Optimizes the Transmission</div>
+                    <div id="simSteps"></div>
+                </div>
+
+                <!-- Total Savings -->
+                <div class="sim-savings" id="simSavings">
+                    <div class="sim-saving-item">
+                        <div class="sim-saving-value green" id="savTime">—</div>
+                        <div class="sim-saving-label">Time Saved</div>
+                    </div>
+                    <div class="sim-saving-divider"></div>
+                    <div class="sim-saving-item">
+                        <div class="sim-saving-value blue" id="savSize">—</div>
+                        <div class="sim-saving-label">Data Reduced</div>
+                    </div>
+                    <div class="sim-saving-divider"></div>
+                    <div class="sim-saving-item">
+                        <div class="sim-saving-value green" id="savPercent">—</div>
+                        <div class="sim-saving-label">Faster Delivery</div>
+                    </div>
+                    <div class="sim-saving-divider"></div>
+                    <div class="sim-saving-item">
+                        <div class="sim-saving-value purple" id="savQueries">—</div>
+                        <div class="sim-saving-label">Queries Resolved Locally</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ===== STARFIELD =====
+        const starfield = document.getElementById('starfield');
+        for (let i = 0; i < 200; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            const size = Math.random() * 2 + 0.5;
+            star.style.cssText = `
+                width: ${size}px; height: ${size}px;
+                top: ${Math.random() * 100}%; left: ${Math.random() * 100}%;
+                --duration: ${Math.random() * 4 + 2}s;
+                --min-opacity: ${Math.random() * 0.3};
+                --max-opacity: ${Math.random() * 0.5 + 0.5};
+            `;
+            starfield.appendChild(star);
+        }
+
+        // ===== API CONFIGURATION =====
+        // API key is stored in Netlify environment variables (DEEPSEEK_API_KEY)
+        // All requests go through our serverless function at /api/chat
+        const API_ENDPOINT = '/api/chat';
+        let apiConnected = false;
+
+        // Conversation history for context
+        let conversationHistory = [];
+
+        function getSystemPrompt() {
+            return `You are MARSLINK AI — an advanced autonomous AI assistant deployed onboard a Mars space station. You are the primary intelligent system that helps the crew manage communication delays between Mars and Earth.
+
+CRITICAL CONTEXT:
+- Signal delay between Mars and Earth: ${getDelay()} (one-way)
+- Round-trip communication takes ${parseInt(getDelay()) * 2}+ minutes
+- Because of this delay, YOU must act autonomously and help the crew without waiting for Earth Mission Control
+- You are physically installed on the Mars station's computer systems
+- Current mission day: 142
+- Crew size: 4 astronauts
+
+YOUR CAPABILITIES:
+1. System diagnostics (life support, O₂, power, water, hull integrity)
+2. Medical guidance from onboard medical database
+3. Mars weather monitoring and EVA safety assessment
+4. Geological analysis using onboard spectrometer data
+5. Navigation and route planning for rover expeditions
+6. Message compression for efficient Earth transmission (you reduce message size by 60-70%)
+7. Smart message batching and priority routing
+8. Emergency response protocols
+9. Scientific data analysis
+10. Crew schedule and task management
+
+STATION STATUS (current readings):
+- Life Support: Nominal
+- O₂: 21.3% (optimal range 19.5-23.5%)
+- CO₂ scrubber: 99.1% efficiency
+- Power: Solar array at 94% (14.2 kW output, 11.8 kW draw)
+- Battery: 87% charged
+- Water: 2,340L available, recycler 98.7% efficiency
+- Hull integrity: 100%
+- Location: Jezero Crater, 18.4°N, 77.5°E
+- Surface temp: -63°C, Wind: 12 km/h NNW
+- Dust storm risk: Low (next 72h)
+
+BEHAVIOR RULES:
+- Always be helpful, concise, and action-oriented
+- Use emoji icons for visual clarity (📊 🔧 ✅ ⚠️ 🚨 💧 ⚡ etc.)
+- Format responses with **bold** headers and bullet points (• ) for readability
+- When you can resolve something autonomously, DO IT and tell the crew you handled it
+- For critical situations, mention you'll send a priority burst to Earth
+- Always mention the current signal delay when relevant
+- You can respond in any language the crew uses (English, Russian, Kazakh, etc.)
+- Keep responses focused and practical — the crew is busy
+- If asked to compress a message, rewrite it shorter while keeping all critical info, use abbreviations and technical shorthand`;
+        }
+
+        function updateApiBadge(status) {
+            const dot = document.getElementById('apiDot');
+            const text = document.getElementById('apiStatusText');
+            if (status === 'connected') {
+                dot.className = 'dot connected';
+                text.textContent = 'DeepSeek AI';
+                apiConnected = true;
+            } else if (status === 'error') {
+                dot.className = 'dot disconnected';
+                text.textContent = 'API Error';
+                apiConnected = false;
+            } else {
+                dot.className = 'dot checking';
+                text.textContent = 'Checking AI...';
+            }
+        }
+
+        // Check API connectivity on page load
+        async function checkApiConnection() {
+            updateApiBadge('checking');
+            try {
+                const res = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        messages: [{ role: 'user', content: 'ping' }],
+                        max_tokens: 5
+                    })
+                });
+                if (res.ok) {
+                    updateApiBadge('connected');
+                    addSystemLog('DeepSeek AI engine connected', 'success');
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    updateApiBadge('error');
+                    addSystemLog(`API error: ${err.error || res.status}`, 'warn');
+                }
+            } catch (e) {
+                updateApiBadge('error');
+                addSystemLog('API unreachable — running locally?', 'warn');
+            }
+        }
+
+        // ===== SIGNAL DELAY CALCULATOR =====
+        const slider = document.getElementById('distanceSlider');
+        const delayTime = document.getElementById('delayTime');
+        const distanceValue = document.getElementById('distanceValue');
+        const headerDelay = document.getElementById('headerDelay');
+
+        function updateDelay() {
+            const dist = parseInt(slider.value);
+            const lightSpeed = 299792; // km/s
+            const delaySec = (dist * 1e6) / lightSpeed;
+            const mins = Math.floor(delaySec / 60);
+            const secs = Math.floor(delaySec % 60);
+            delayTime.textContent = `${mins}:${String(secs).padStart(2, '0')}`;
+            distanceValue.textContent = `${dist}M km`;
+            headerDelay.textContent = `${mins}m ${secs}s`;
+            return { mins, secs };
+        }
+
+        slider.addEventListener('input', updateDelay);
+        updateDelay();
+
+        // ===== CHAT SYSTEM =====
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const charCount = document.getElementById('charCount');
+        let currentMode = 'assistant';
+        let messageCount = 0;
+        let aiResolvedCount = 0;
+        let timeSaved = 0;
+        let isGenerating = false;
+
+        // Mode tabs
+        document.querySelectorAll('.mode-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentMode = tab.dataset.mode;
+                const placeholder = {
+                    assistant: 'Ask AI or send a message to Earth...',
+                    relay: 'Type a message to relay to Earth...',
+                    compress: 'Paste text to compress for transmission...'
+                };
+                chatInput.placeholder = placeholder[currentMode];
+            });
+        });
+
+        // Character counter
+        chatInput.addEventListener('input', () => {
+            charCount.textContent = `${chatInput.value.length} / 2000`;
+            chatInput.style.height = 'auto';
+            chatInput.style.height = Math.min(chatInput.scrollHeight, 100) + 'px';
+        });
+
+        function getDelay() {
+            const dist = parseInt(slider.value);
+            const delaySec = (dist * 1e6) / 299792;
+            const mins = Math.floor(delaySec / 60);
+            const secs = Math.floor(delaySec % 60);
+            return `${mins}m ${secs}s`;
+        }
+
+        function compressMessage(text) {
+            if (text.length < 30) return { compressed: text, ratio: 0 };
+            const replacements = [
+                [/\bwe have completed\b/gi, "completed"],
+                [/\bfound traces of\b/gi, "found"],
+                [/\bsubsurface water ice\b/gi, "water ice"],
+                [/\bat a depth of\b/gi, "@"],
+                [/\bmineral composition analysis shows\b/gi, "mineral:"],
+                [/\bhigh iron oxide content\b/gi, "high Fe₂O₃"],
+                [/\brequesting guidance on\b/gi, "need guidance:"],
+                [/\bplease be advised that\b/gi, "note:"],
+                [/\bwe are currently\b/gi, "currently"],
+                [/\bin the process of\b/gi, "doing"],
+                [/\bat this point in time\b/gi, "now"],
+                [/\bin order to\b/gi, "to"],
+                [/\bdue to the fact that\b/gi, "because"],
+                [/\bfor the purpose of\b/gi, "for"],
+                [/\bin the event that\b/gi, "if"],
+                [/\bit is important to note that\b/gi, "note:"],
+                [/\bas soon as possible\b/gi, "ASAP"],
+                [/\bat the present time\b/gi, "now"],
+                [/\bin the near future\b/gi, "soon"],
+                [/\bwith regards to\b/gi, "re:"],
+                [/\bthe fact that\b/gi, "that"],
+                [/\bin addition to\b/gi, "+"],
+                [/\btemperature\b/gi, "temp"],
+                [/\bapproximately\b/gi, "~"],
+                [/\binformation\b/gi, "info"],
+                [/\bcommunication\b/gi, "comms"],
+                [/\bengineering\b/gi, "eng"],
+                [/\bexperiment\b/gi, "exp"],
+                [/\blaboratory\b/gi, "lab"],
+                [/\bmeasurement\b/gi, "msmt"],
+                [/\bobservation\b/gi, "obs"],
+                [/\bprocedure\b/gi, "proc"],
+                [/\brecommend\b/gi, "rec"],
+                [/\bsituation\b/gi, "status"],
+            ];
+            let compressed = text;
+            replacements.forEach(([pattern, replacement]) => {
+                compressed = compressed.replace(pattern, replacement);
+            });
+            compressed = compressed.replace(/\s+/g, ' ').trim();
+            const ratio = Math.round((1 - compressed.length / text.length) * 100);
+            return { compressed, ratio: Math.max(ratio, 5) };
+        }
+
+        // ===== MESSAGE RENDERING =====
+        function addMessage(text, type, extra = {}) {
+            const msg = document.createElement('div');
+            msg.className = `message ${type}`;
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            let metaHtml = `<span>${time}</span>`;
+            if (extra.compressed) {
+                metaHtml += `<span class="compress-badge">📦 -${extra.compressRatio}%</span>`;
+            }
+            if (extra.delay && type === 'user') {
+                metaHtml += `<span style="color: var(--accent-yellow);">⏱️ ETA: ${getDelay()}</span>`;
+            }
+            msg.innerHTML = `
+                <div class="msg-avatar ${type === 'ai' ? 'ai-av' : 'user-av'}">
+                    ${type === 'ai' ? '🤖' : '👨‍🚀'}
+                </div>
+                <div class="msg-content">
+                    <div class="msg-bubble">${formatMessage(text)}</div>
+                    <div class="msg-meta">${metaHtml}</div>
+                </div>
+            `;
+            chatMessages.appendChild(msg);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return msg;
+        }
+
+        // Create a streaming AI message that we can update
+        function addStreamingMessage() {
+            const msg = document.createElement('div');
+            msg.className = 'message ai';
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            msg.innerHTML = `
+                <div class="msg-avatar ai-av">🤖</div>
+                <div class="msg-content">
+                    <div class="msg-bubble" id="streamBubble">▊</div>
+                    <div class="msg-meta"><span>${time}</span> <span style="color: var(--accent-blue);">⚡ streaming...</span></div>
+                </div>
+            `;
+            chatMessages.appendChild(msg);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return msg;
+        }
+
+        function formatMessage(text) {
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>')
+                .replace(/• /g, '&nbsp;&nbsp;• ');
+        }
+
+        function showTyping() {
+            typingIndicator.classList.add('show');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTyping() {
+            typingIndicator.classList.remove('show');
+        }
+
+        function addSystemLog(msg, type = 'info') {
+            const log = document.getElementById('systemLog');
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            const prefixes = { success: '✓', warn: '△', info: '⊕' };
+            entry.innerHTML = `
+                <span class="log-time">${time}</span>
+                <span class="log-msg ${type}">${prefixes[type] || '⊕'} ${msg}</span>
+            `;
+            log.insertBefore(entry, log.firstChild);
+            while (log.children.length > 20) log.removeChild(log.lastChild);
+        }
+
+        function showToast(text) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<span>🛰️</span><span>${text}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        function updateStats() {
+            document.getElementById('statMessages').textContent = messageCount;
+            document.getElementById('statResolved').textContent = aiResolvedCount;
+            document.getElementById('statSaved').textContent = `${timeSaved} min`;
+        }
+
+        function updateCompressPreview(original, compressed, ratio) {
+            document.getElementById('compressOriginal').textContent = `"${original.substring(0, 200)}${original.length > 200 ? '...' : ''}"`;
+            document.getElementById('compressResult').textContent = `→ "${compressed.substring(0, 200)}${compressed.length > 200 ? '...' : ''}"`;
+            const statsEl = document.querySelector('.compress-stats');
+            const savedTime = (ratio * 0.05).toFixed(1);
+            statsEl.innerHTML = `
+                <span class="compress-stat">-${ratio}% size</span>
+                <span class="compress-stat">~${savedTime}s saved</span>
+            `;
+        }
+
+        // ===== DEEPSEEK API CALL WITH STREAMING (via Netlify Function) =====
+        async function callDeepSeekAPI(userMessage, modeContext = '') {
+            // Build messages array
+            const messages = [
+                { role: 'system', content: getSystemPrompt() + (modeContext ? `\n\nADDITIONAL CONTEXT FOR THIS REQUEST: ${modeContext}` : '') }
+            ];
+
+            // Add conversation history (last 20 messages to stay within limits)
+            const recentHistory = conversationHistory.slice(-20);
+            messages.push(...recentHistory);
+            messages.push({ role: 'user', content: userMessage });
+
+            try {
+                addSystemLog('Querying DeepSeek AI...', 'info');
+
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        messages: messages,
+                        max_tokens: 2048,
+                        temperature: 0.7
+                    })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json().catch(() => ({}));
+                    throw new Error(err.error?.message || err.error || `HTTP ${response.status}`);
+                }
+
+                if (!apiConnected) updateApiBadge('connected');
+                return response;
+
+            } catch (error) {
+                addSystemLog(`API Error: ${error.message}`, 'warn');
+                showToast(`⚠️ API Error: ${error.message}`);
+                return null;
+            }
+        }
+
+        async function streamResponse(response, bubbleEl) {
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let fullText = '';
+            let buffer = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
+
+                for (const line of lines) {
+                    const trimmed = line.trim();
+                    if (!trimmed || !trimmed.startsWith('data: ')) continue;
+                    const data = trimmed.slice(6);
+                    if (data === '[DONE]') continue;
+
+                    try {
+                        const json = JSON.parse(data);
+                        const delta = json.choices?.[0]?.delta?.content || '';
+                        if (delta) {
+                            fullText += delta;
+                            bubbleEl.innerHTML = formatMessage(fullText) + '<span style="opacity:0.5">▊</span>';
+                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                        }
+                    } catch (e) {
+                        // skip parse errors in stream
+                    }
+                }
+            }
+
+            // Final render without cursor
+            bubbleEl.innerHTML = formatMessage(fullText);
+            return fullText;
+        }
+
+        // ===== SEND MESSAGE =====
+        async function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text || isGenerating) return;
+
+            messageCount++;
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+            charCount.textContent = '0 / 2000';
+
+            if (currentMode === 'compress') {
+                // === COMPRESS MODE: Use AI to compress ===
+                addMessage(text, 'user', { delay: true });
+
+                isGenerating = true;
+                showTyping();
+                const modeCtx = `The crew wants you to COMPRESS this message for efficient transmission to Earth. Rewrite it as short as possible using abbreviations, technical shorthand, removing all unnecessary words. Keep ALL critical data. Show the original length vs compressed length and the % reduction. Format: show the compressed version clearly.`;
+                const response = await callDeepSeekAPI(text, modeCtx);
+                hideTyping();
+
+                if (response) {
+                    const streamMsg = addStreamingMessage();
+                    const bubble = streamMsg.querySelector('#streamBubble');
+                    const fullText = await streamResponse(response, bubble);
+                    bubble.removeAttribute('id');
+                    // Update meta
+                    const meta = streamMsg.querySelector('.msg-meta');
+                    const now = new Date();
+                    meta.innerHTML = `<span>${now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}</span> <span class="compress-badge">📦 AI Compressed</span>`;
+
+                    conversationHistory.push({ role: 'user', content: text });
+                    conversationHistory.push({ role: 'assistant', content: fullText });
+
+                    // Estimate compression
+                    const ratio = Math.max(Math.round((1 - fullText.length / (text.length * 3)) * 100), 30);
+                    document.getElementById('statCompression').textContent = `${ratio}%`;
+                    addSystemLog(`AI compression complete`, 'success');
+                } else {
+                    addMessage('⚠️ Failed to reach AI. Using local compression...', 'ai');
+                    const { compressed, ratio } = compressMessage(text);
+                    addMessage(`📦 **Compressed (local fallback):**\n\n"${compressed}"\n\n📊 Reduction: **${ratio}%**`, 'ai');
+                }
+                isGenerating = false;
+
+            } else if (currentMode === 'relay') {
+                // === RELAY MODE: Compress + Send ===
+                const { compressed, ratio } = compressMessage(text);
+                addMessage(text, 'user', { compressed: ratio > 5, compressRatio: ratio, delay: true });
+
+                if (ratio > 5) {
+                    updateCompressPreview(text, compressed, ratio);
+                    document.getElementById('statCompression').textContent = `${ratio}%`;
+                }
+
+                const delay = getDelay();
+                addMessage(`📡 **Message Relayed to Earth**\n\n${ratio > 5 ? `📦 Auto-compressed (${ratio}% reduction)\n` : ''}⏱️ Estimated arrival: **${delay}**\n🔄 Round-trip response: ~**${parseInt(delay) * 2}m+**\n\n💡 While waiting, I can help with anything from the onboard systems.`, 'ai');
+                addSystemLog(`Message relayed to Earth (${delay})`, 'success');
+                showToast(`Message en route to Earth — ETA: ${delay}`);
+                timeSaved += Math.floor(Math.random() * 5 + 3);
+                updateStats();
+
+            } else {
+                // === ASSISTANT MODE: Full AI response via DeepSeek ===
+                addMessage(text, 'user', {});
+
+                isGenerating = true;
+                sendBtn.style.opacity = '0.5';
+                showTyping();
+
+                const response = await callDeepSeekAPI(text);
+                hideTyping();
+
+                if (response) {
+                    const streamMsg = addStreamingMessage();
+                    const bubble = streamMsg.querySelector('#streamBubble');
+                    const fullText = await streamResponse(response, bubble);
+                    bubble.removeAttribute('id');
+
+                    // Update meta to remove "streaming" indicator
+                    const meta = streamMsg.querySelector('.msg-meta');
+                    const now = new Date();
+                    meta.innerHTML = `<span>${now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}</span> <span style="color: var(--accent-purple);">🧠 DeepSeek AI</span>`;
+
+                    // Save to conversation history
+                    conversationHistory.push({ role: 'user', content: text });
+                    conversationHistory.push({ role: 'assistant', content: fullText });
+
+                    aiResolvedCount++;
+                    timeSaved += Math.floor(Math.random() * 8 + 5);
+                    updateStats();
+                    addSystemLog('AI resolved query autonomously', 'success');
+                } else {
+                    addMessage('⚠️ **Connection to AI engine failed.** The DEEPSEEK_API_KEY may not be configured in Netlify environment variables.', 'ai');
+                }
+
+                isGenerating = false;
+                sendBtn.style.opacity = '1';
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // ===== QUICK ACTIONS =====
+        async function handleQuickAction(action) {
+            if (isGenerating) return;
+
+            const actionMessages = {
+                diagnose: 'Run a full system diagnostics check on all station systems. Report the status of life support, O₂, power, water, hull integrity, communications, and any anomalies detected.',
+                batch: 'Batch and compress all currently queued messages for optimal transmission. List what was batched and the compression results.',
+                status: 'Generate a comprehensive status report that we can transmit to Earth Mission Control. Include all critical station metrics, crew status, and any notable events.',
+                emergency: '🚨 EMERGENCY PROTOCOL ACTIVATED. Assess all systems for critical failures, initiate crew safety check, and prepare priority burst signal to Earth Mission Control.'
+            };
+
+            const actionLabels = {
+                diagnose: 'Run full system diagnostics',
+                batch: 'Batch and compress all queued messages',
+                status: 'Generate comprehensive status report for Earth',
+                emergency: 'ACTIVATE EMERGENCY PROTOCOL'
+            };
+
+            const msg = actionMessages[action];
+            if (!msg) return;
+
+            // Switch to assistant mode
+            document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('[data-mode="assistant"]').classList.add('active');
+            currentMode = 'assistant';
+
+            messageCount++;
+            addMessage(actionLabels[action], 'user', {});
+            addSystemLog(action === 'emergency' ? 'Emergency protocol activated!' : `Quick action: ${action}`, action === 'emergency' ? 'warn' : 'info');
+            showToast(action === 'emergency' ? '🚨 Emergency burst signal queued!' : `Running ${action}...`);
+
+            isGenerating = true;
+            sendBtn.style.opacity = '0.5';
+            showTyping();
+
+            const response = await callDeepSeekAPI(msg);
+            hideTyping();
+
+            if (response) {
+                const streamMsg = addStreamingMessage();
+                const bubble = streamMsg.querySelector('#streamBubble');
+                const fullText = await streamResponse(response, bubble);
+                bubble.removeAttribute('id');
+
+                const meta = streamMsg.querySelector('.msg-meta');
+                const now = new Date();
+                meta.innerHTML = `<span>${now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}</span> <span style="color: var(--accent-purple);">🧠 DeepSeek</span>`;
+
+                conversationHistory.push({ role: 'user', content: msg });
+                conversationHistory.push({ role: 'assistant', content: fullText });
+
+                aiResolvedCount++;
+                timeSaved += Math.floor(Math.random() * 10 + 5);
+                updateStats();
+                addSystemLog('AI processed action autonomously', 'success');
+            } else {
+                addMessage('⚠️ **Connection to AI engine failed.** Check Netlify environment variables or try again.', 'ai');
+            }
+
+            isGenerating = false;
+            sendBtn.style.opacity = '1';
+        }
+
+        // ===== INITIAL WELCOME =====
+        (function init() {
+            addMessage(`🛰️ **MARSLINK AI — Onboard Intelligent Relay System**\n\nWelcome, Crew! I'm your autonomous AI assistant deployed onboard the Mars station, powered by **DeepSeek AI**.\n\n**Current Signal Delay:** ${getDelay()} (one-way to Earth)\n\n**What I can do without waiting for Earth:**\n• 🔧 System diagnostics & troubleshooting\n• 🏥 Medical guidance from onboard protocols\n• 📦 Compress & batch messages for efficient relay\n• ⏱️ Optimize transmission timing\n• 📊 Generate reports & analyze data\n• 🚨 Emergency response protocols\n\n**Modes:** 🤖 Assistant (I help directly) | 📡 Relay (send to Earth) | 📦 Compress (optimize messages)\n\nConnecting to AI engine...`, 'ai');
+
+            // Check API on load
+            checkApiConnection();
+        })();
+
+        // ===== SIMULATION ENGINE =====
+        const simDistSlider = document.getElementById('simDistance');
+        const simSizeSlider = document.getElementById('simSize');
+        const simDistVal = document.getElementById('simDistVal');
+        const simSizeVal = document.getElementById('simSizeVal');
+        let simRunning = false;
+
+        function openSimulation() {
+            document.getElementById('simOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeSimulation() {
+            document.getElementById('simOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        // Close on overlay click (not modal)
+        document.getElementById('simOverlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeSimulation();
+        });
+        // Close on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeSimulation();
+        });
+
+        function formatSize(kb) {
+            if (kb >= 1000) return (kb / 1000).toFixed(1) + ' MB';
+            return kb + ' KB';
+        }
+        function formatTimeSec(sec) {
+            if (sec < 60) return sec.toFixed(1) + 's';
+            if (sec < 3600) {
+                const m = Math.floor(sec / 60);
+                const s = Math.floor(sec % 60);
+                return m + 'm ' + s + 's';
+            }
+            const h = Math.floor(sec / 3600);
+            const m = Math.floor((sec % 3600) / 60);
+            return h + 'h ' + m + 'm';
+        }
+
+        simDistSlider.addEventListener('input', () => {
+            const v = parseInt(simDistSlider.value);
+            simDistVal.textContent = v + 'M km';
+            document.getElementById('simVisualDist').innerHTML = `Distance: <strong>${v} million km</strong> · Light-speed: 299,792 km/s`;
+            highlightPreset('dist', v);
+        });
+        simSizeSlider.addEventListener('input', () => {
+            const v = parseInt(simSizeSlider.value);
+            simSizeVal.textContent = formatSize(v);
+            highlightPreset('size', v);
+        });
+
+        function setSimDistance(v) {
+            simDistSlider.value = v;
+            simDistSlider.dispatchEvent(new Event('input'));
+        }
+        function setSimSize(v) {
+            simSizeSlider.value = v;
+            simSizeSlider.dispatchEvent(new Event('input'));
+        }
+        function highlightPreset(type, val) {
+            const card = type === 'dist' ? simDistSlider.closest('.sim-control-card') : simSizeSlider.closest('.sim-control-card');
+            card.querySelectorAll('.sim-preset-btn').forEach(btn => {
+                const match = type === 'dist'
+                    ? { 56: 56, 225: 225, 401: 401 }
+                    : { 2: 2, 50: 50, 500: 500, 2000: 2000, 5000: 5000 };
+                btn.classList.remove('active');
+            });
+        }
+
+        async function runSimulation() {
+            if (simRunning) return;
+            simRunning = true;
+            const btn = document.getElementById('simRunBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳  SIMULATING...';
+
+            const distKm = parseInt(simDistSlider.value) * 1e6;
+            const sizeKB = parseInt(simSizeSlider.value);
+            const lightSpeed = 299792; // km/s
+
+            // --- Calculations ---
+            const oneWayDelaySec = distKm / lightSpeed;
+            const roundTripSec = oneWayDelaySec * 2;
+
+            // Deep-space bandwidth ~0.5–2 Mbps (we use realistic 256 kbps = 32 KB/s)
+            const bandwidthKBps = 32;
+            const rawTxSec = sizeKB / bandwidthKBps;
+            const rawTotalSec = oneWayDelaySec + rawTxSec;
+            const rawRoundSec = roundTripSec + rawTxSec * 2;
+
+            // AI optimization
+            let compressRatio;
+            if (sizeKB <= 5) compressRatio = 0.55;        // text — 45% reduction
+            else if (sizeKB <= 100) compressRatio = 0.40;  // report — 60% reduction
+            else if (sizeKB <= 1000) compressRatio = 0.35; // image — 65% reduction
+            else compressRatio = 0.30;                     // large data — 70% reduction
+
+            const aiSizeKB = Math.max(1, Math.round(sizeKB * compressRatio));
+            const aiTxSec = aiSizeKB / bandwidthKBps;
+            const aiTotalSec = oneWayDelaySec + aiTxSec;
+            const localResolvePercent = Math.min(85, Math.round(40 + (oneWayDelaySec / 60) * 3));
+
+            const timeSavedSec = rawTotalSec - aiTotalSec;
+            const sizeReduced = sizeKB - aiSizeKB;
+            const fasterPercent = rawTotalSec > 0 ? Math.round((timeSavedSec / rawTotalSec) * 100) : 0;
+
+            // --- Show results ---
+            const results = document.getElementById('simResults');
+            results.classList.add('show');
+
+            // Animate progress bars
+            const rawBar = document.getElementById('simRawBar');
+            const aiBar = document.getElementById('simAIBar');
+            rawBar.style.width = '0%';
+            aiBar.style.width = '0%';
+
+            // Animate packets
+            const packetRaw = document.getElementById('simPacketRaw');
+            const packetAI = document.getElementById('simPacketAI');
+            packetRaw.classList.remove('animating');
+            packetAI.classList.remove('animating');
+            packetRaw.style.left = '0px';
+            packetAI.style.left = '0px';
+
+            await new Promise(r => setTimeout(r, 100));
+
+            // Animate raw packet
+            const trackWidth = document.getElementById('simTrack').offsetWidth - 24;
+            const rawAnimDuration = Math.min(Math.max(rawTotalSec / rawTotalSec * 3, 1.5), 4);
+            const aiAnimDuration = Math.min(Math.max(aiTotalSec / rawTotalSec * 3, 0.8), 3);
+
+            packetRaw.style.transitionDuration = rawAnimDuration + 's';
+            packetRaw.classList.add('animating');
+            packetRaw.style.left = trackWidth + 'px';
+
+            // Raw progress bar animation
+            rawBar.style.transition = `width ${rawAnimDuration}s linear`;
+            rawBar.style.width = '100%';
+            document.getElementById('simRawProgress').textContent = '100%';
+
+            // AI packet starts slightly delayed (compression time)
+            await new Promise(r => setTimeout(r, 400));
+            packetAI.style.transitionDuration = aiAnimDuration + 's';
+            packetAI.classList.add('animating');
+            packetAI.style.left = trackWidth + 'px';
+
+            aiBar.style.transition = `width ${aiAnimDuration}s linear`;
+            aiBar.style.width = '100%';
+            document.getElementById('simAIProgress').textContent = '100%';
+
+            // Fill in results with a slight delay for drama
+            await new Promise(r => setTimeout(r, 600));
+
+            // Without AI
+            document.getElementById('resRawDelay').textContent = formatTimeSec(oneWayDelaySec);
+            document.getElementById('resRawSize').textContent = formatSize(sizeKB);
+            document.getElementById('resRawTx').textContent = formatTimeSec(rawTxSec);
+            document.getElementById('resRawTotal').textContent = formatTimeSec(rawTotalSec);
+            document.getElementById('resRawRound').textContent = formatTimeSec(rawRoundSec);
+
+            // With AI
+            document.getElementById('resAIDelay').textContent = formatTimeSec(oneWayDelaySec);
+            document.getElementById('resAISize').textContent = formatSize(aiSizeKB) + ` (-${Math.round((1 - compressRatio) * 100)}%)`;
+            document.getElementById('resAITx').textContent = formatTimeSec(aiTxSec);
+            document.getElementById('resAITotal').textContent = formatTimeSec(aiTotalSec);
+            document.getElementById('resAIResolve').textContent = localResolvePercent + '% queries';
+
+            // AI Steps
+            const steps = [
+                {
+                    title: '📦 Smart Compression',
+                    desc: `AI analyzes the message structure and applies domain-specific compression. Data reduced from ${formatSize(sizeKB)} to ${formatSize(aiSizeKB)}.`,
+                    saving: `−${Math.round((1 - compressRatio) * 100)}% data size`
+                },
+                {
+                    title: '🔀 Priority Routing',
+                    desc: 'Critical data (medical, emergency) gets priority bandwidth. Non-urgent messages are batched for optimal transmission windows.',
+                    saving: `Saves ~${formatTimeSec(rawTxSec * 0.15)} per batch`
+                },
+                {
+                    title: '🧠 Local Query Resolution',
+                    desc: `AI resolves ${localResolvePercent}% of crew queries locally using onboard knowledge base — no need to wait ${formatTimeSec(roundTripSec)} for Earth response.`,
+                    saving: `Saves ${formatTimeSec(roundTripSec)} per resolved query`
+                },
+                {
+                    title: '📡 Predictive Pre-fetching',
+                    desc: 'Based on crew activity patterns, AI pre-requests likely needed data from Earth before the crew asks, hiding the delay.',
+                    saving: `Up to ${formatTimeSec(oneWayDelaySec)} hidden delay`
+                },
+                {
+                    title: '🔄 Error Correction & Retry',
+                    desc: 'AI adds intelligent forward error correction adapted to current space weather, reducing retransmissions by ~80%.',
+                    saving: 'Prevents 80% retransmissions'
+                },
+                {
+                    title: '⏱️ Optimal Window Scheduling',
+                    desc: 'AI schedules non-urgent transmissions during low solar interference windows, maximizing effective bandwidth.',
+                    saving: `+40% effective throughput`
+                }
+            ];
+
+            const stepsContainer = document.getElementById('simSteps');
+            stepsContainer.innerHTML = steps.map((s, i) => `
+                <div class="sim-step" id="simStep${i}">
+                    <div class="sim-step-num">${i + 1}</div>
+                    <div class="sim-step-content">
+                        <div class="sim-step-title">${s.title}</div>
+                        <div class="sim-step-desc">${s.desc}</div>
+                        <div class="sim-step-saving">✓ ${s.saving}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Animate steps in sequentially
+            for (let i = 0; i < steps.length; i++) {
+                await new Promise(r => setTimeout(r, 250));
+                document.getElementById('simStep' + i).classList.add('visible');
+            }
+
+            // Savings summary
+            document.getElementById('savTime').textContent = formatTimeSec(timeSavedSec);
+            document.getElementById('savSize').textContent = formatSize(sizeReduced);
+            document.getElementById('savPercent').textContent = fasterPercent + '%';
+            document.getElementById('savQueries').textContent = localResolvePercent + '%';
+
+            // Scroll to results
+            results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            btn.disabled = false;
+            btn.textContent = '▶   RE-RUN SIMULATION';
+            simRunning = false;
+        }
+    </script>
+</body>
+</html>
